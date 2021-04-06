@@ -68,6 +68,7 @@ end
 
 function write_scripts(numparams::Integer, basename::String, numprocessors::Int, parameter_ranges::Array{<:Any})
     open("test.sh", "w") do io
+        write(io, string("#!/bin/bash","\n"))
         for i in 1:numparams
             write(io, string("\t"*(i-1), "for var$(i) in $([string(s," ") for s in parameter_ranges[i]]...); do\n"))
             write(io, string("\t"*(i), "echo running calculation for var$(i) = \$var$(i)\n"))

@@ -1,3 +1,4 @@
+#!/bin/bash
 for var1 in 9 2 3 ; do
 	echo running calculation for var1 = $var1
 	export var1
