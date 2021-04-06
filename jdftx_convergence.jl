@@ -7,10 +7,6 @@ function converge_parameters(io::IO, filebase::String)
     return nothing
 end
 
-function write_scripts()
-
-end
-
 function write_inputs_1param(baseinput::String, numiterations::Integer, parameter::String, startvalue::Any, endvalue::Any)
     filename  = "$baseinput.in"
     DFT_PARAMS = Vector{String}()
@@ -57,5 +53,36 @@ function write_inputs_2param(baseinput::String, numiterations::Vector{<:Integer}
     for i in 1:numiterations[1]
         cp(string(baseinput, i, ".in"), string(baseinput, i, 0, ".in"), force = true)
         rm(string(baseinput, i, ".in"))
+    end
+end
+
+##Below we'll make arbitrary numbers of datasets using bash scripts
+import Base: *
+function *(s::String, i::Int64)
+    finalstring = ""
+    for n in 1:i
+        finalstring = string(finalstring, s)
+    end
+    return finalstring
+end
+
+function write_scripts(numparams::Integer, basename::String, numprocessors::Int, parameter_ranges::Array{<:Any})
+    open("test.sh", "w") do io
+        for i in 1:numparams
+            write(io, string("\t"*(i-1), "for var$(i) in $([string(s," ") for s in parameter_ranges[i]]...); do\n"))
+            write(io, string("\t"*(i), "echo running calculation for var$(i) = \$var$(i)\n"))
+            write(io, string("\t"*(i), "export var$(i)\n"))
+            if i==numparams
+                trailing_nums = ""
+                for k in 1:numparams
+                    trailing_nums = string(trailing_nums, "\$var$(k)")
+                end
+                write(io, string("\t"*i, "export dump=$basename$(trailing_nums).\$VAR\n"))
+                write(io, string("\t"*i, "mpirun -n $(numprocessors) jdftx -i $(basename).in | tee $(basename)$(trailing_nums).out\n"))
+            end
+        end
+        for j in 1:numparams
+            write(io,  string("\t"*(numparams-j), "done \n"))
+        end
     end
 end
