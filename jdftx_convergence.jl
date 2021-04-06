@@ -78,7 +78,7 @@ function write_scripts(numparams::Integer, basename::String, numprocessors::Int,
                 for k in 1:numparams
                     trailing_nums = string(trailing_nums, "\$var$(k)")
                 end
-                write(io, string("\t"*i, "export dump=$basename$(trailing_nums).\$VAR\n"))
+                write(io, string("\t"*i, "export dump=$basename$(trailing_nums)", ".\'","\$VAR", "\' \n"))
                 write(io, string("\t"*i, "mpirun -n $(numprocessors) jdftx -i $(basename).in | tee $(basename)$(trailing_nums).out\n"))
             end
         end
@@ -87,3 +87,4 @@ function write_scripts(numparams::Integer, basename::String, numprocessors::Int,
         end
     end
 end
+

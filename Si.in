@@ -1,0 +1,15 @@
+lattice face-centered Cubic 5.43
+latt-scale 1.88973 1.88973 1.88973  #Convert lattice vectors from Angstroms to bohrs
+
+coords-type lattice        #Specify atom coordinates in terms of the lattice vectors (fractional coordinates)
+ion Si 0.00 0.00 0.00  0   #This covers the vertex and face centers of the cube
+ion Si 0.25 0.25 0.25  0   #This covers the half-cell body centers
+
+kpoint-folding ${var1} ${var1} ${var1}
+
+#Select pseudopotential set:
+ion-species GBRV/$ID_pbe.uspp
+elec-cutoff ${var2} ${var3}
+
+dump-name ${dump}
+dump End None
