@@ -1,0 +1,3 @@
+ion Si 0.00 0.00 0.00  0   #This covers the vertex and face centers of the cube
+ion Si 0.25 0.25 0.25  0   #This covers the half-cell body centers
+
