@@ -66,7 +66,7 @@ function *(s::String, i::Int64)
     return finalstring
 end
 
-function write_scripts(numparams::Integer, basename::String, numprocessors::Int, parameter_ranges::Array{<:Any})
+function write_scripts(numparams::Integer, basename::String, numprocessors::Union{<:Integer, Nothing}, parameter_ranges::Array{<:Any})
     open("test.sh", "w") do io
         write(io, string("#!/bin/bash","\n"))
         for i in 1:numparams
@@ -77,9 +77,13 @@ function write_scripts(numparams::Integer, basename::String, numprocessors::Int,
                 trailing_nums = ""
                 for k in 1:numparams
                     trailing_nums = string(trailing_nums, "\$var$(k)")
-                end
+                end    
                 write(io, string("\t"*i, "export dump=$basename$(trailing_nums)", ".\'","\$VAR", "\' \n"))
-                write(io, string("\t"*i, "mpirun -n $(numprocessors) jdftx -i $(basename).in | tee $(basename)$(trailing_nums).out\n"))
+                if numprocessors isa Nothing
+                    write(io, string("\t"*i, "jdftx_gpu -i $(basename).in | tee $(basename)$(trailing_nums).out\n"))
+                else
+                    write(io, string("\t"*i, "mpirun -n $(numprocessors) jdftx -i $(basename).in | tee $(basename)$(trailing_nums).out\n"))
+                end
             end
         end
         for j in 1:numparams
