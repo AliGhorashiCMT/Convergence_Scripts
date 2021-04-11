@@ -90,5 +90,14 @@ function write_scripts(numparams::Integer, basename::String, numprocessors::Unio
             write(io,  string("\t"*(numparams-j), "done \n"))
         end
     end
+    open("listenergies$(i).sh", "w") do io
+        write(io, string("#!/bin/bash","\n"))
+        for i in 1:numparams
+            trailingnum = ""
+            for k in 1:numparams
+                trailingnum = string(trailingnum, )
+            write(io, string("listEnergy", "$(basename)$.out" ))
+        end
+    end
 end
 
