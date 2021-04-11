@@ -7,14 +7,15 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		for (index, ion) in enumerate(small_ionpos)
 			starting_pos = ion[2:4]./mults
 			ion_id = ion[1]
-			if index == 1 
-				ion_id = defect_atom
-			end
-			for z in 0:mults[1]-1
+			for z in 0:mults[3]-1
 				for y in 0:mults[2]-1
 					for x in 0:mults[1]-1
 						println([x, y, z]./mults)
-						push!(large_ionpos, (ion_id, (starting_pos+[x, y, z]./mults )..., ion[5]))
+						if index==1 && [x, y, z]==[0, 0, 0]  
+							push!(large_ionpos, (defect_atom, (starting_pos+[x, y, z]./mults )..., ion[5]))
+						else
+							push!(large_ionpos, (ion_id, (starting_pos+[x, y, z]./mults )..., ion[5]))
+						end
 					end
 				end
 			end
@@ -27,6 +28,7 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		##Write IONS
 		open("$(prefix)$(mults[1:2]...)$(ext).ionpos", write=true, create=true) do io 
 			for large_ion in large_ionpos
+				write(io, "ion ")
 				for ionspec in large_ion
 					write(io, string(ionspec), "  ")
 				end
