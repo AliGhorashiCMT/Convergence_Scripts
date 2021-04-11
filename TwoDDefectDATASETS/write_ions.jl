@@ -47,22 +47,25 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		end
 	end
 end
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer})
+function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
 	##Write Script
 	open("RUN_MAIN.sh", write=true, create=true) do io
 		write(io, string("#!/bin/bash \n"))
-
 		write(io, "export wfncutoff=$(wfncutoff)\n")
 		write(io, "export densitycutoff=$(densitycutoff)\n")
 		##Loop over extensions, cell mults, and do SCF, Bandstruct and Wannier calculations for all
 		write(io, "for mult in $([string(" ", m) for m in mults]...); do\n")
 		write(io, "export mult\n")
+		write(io, "export prefix=$(prefix)")
 		for (nk, charge, ext) in zip(nks, charges, extensions)
 			write(io, "export ext=$ext\n")
 			write(io, "export charge=$charge\n")
 			write(io, "export nk=$nk\n")
-			write(io, "jdftx_gpu SCF_MAIN.in | tee $(prefix)\$\"mult\"\$\"mult\".out\n")
-			write(io, "jdftx_gpu SCF BANDSTRUCT_MAIN.in |tee $(prefix)\$\"mult\"\$\"mult\".out\n" )
+			write(io, "for i in {0..3} do\n")
+			write(io, "jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
+			write(io, "done\n")
+			makexsf ? write(io, "createXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
+			write(io, "jdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\$\"mult\"\$\"mult\".out\n" )
 		end
 		write(io, "done\n")
 	end

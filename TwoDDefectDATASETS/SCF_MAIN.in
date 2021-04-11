@@ -11,10 +11,11 @@ elec-initial-magnetization 1 no
 spintype z-spin
 electronic-SCF
 
-lattice-minimize nIterations 100
+lattice-minimize nIterations 10
 
-dump-name ${prefix}N${mult}${mult}${ext}.$VAR
+dump-name ${prefix}${mult}${mult}${ext}.$VAR
 dump End ElecDensity State BandEigs EigStats DOS 
+dump Ionic Lattice IonicPositions 
 
 kpoint-folding ${nk} ${nk} 1
 elec-smearing Fermi 0.0001
