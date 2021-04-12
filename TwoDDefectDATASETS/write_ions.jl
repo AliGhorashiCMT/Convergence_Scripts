@@ -71,4 +71,22 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 	end
 end
 
-
+function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensions::Vector{<:String}, norbitals::Integer)
+	wanniercenters = Vector{Vector{Float64}}()
+	for ext in extensions
+		for mult in mults
+			ions = readlines(prefix*string(mult)*string(mult)*ext*".ionpos")
+			for ion in ions
+				ioncoords = parse.(Float64, string.(split(ion))[3:5])
+				for o in 1:norbitals
+					push!(wanniercenters, ioncoords+rand(3)./100)
+				end
+			end
+			open(prefix*string(mult)*string(mult)*ext*".wanniercenters", write=true) do io 
+				for center in wanniercenters
+					write(io, "wannier-center Gaussian ", [string(c, " ") for c in center ]..., "\n")
+				end
+			end
+		end
+	end
+end
