@@ -72,9 +72,9 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 end
 
 function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensions::Vector{<:String}, norbitals::Integer)
-	wanniercenters = Vector{Vector{Float64}}()
 	for ext in extensions
 		for mult in mults
+			wanniercenters = Vector{Vector{Float64}}()
 			ions = readlines(prefix*string(mult)*string(mult)*ext*".ionpos")
 			for ion in ions
 				ioncoords = parse.(Float64, string.(split(ion))[3:5])
