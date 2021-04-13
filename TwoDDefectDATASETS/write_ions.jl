@@ -38,11 +38,11 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		##Write Lattice
 		open("$(prefix)$(mults[1:2]...)$(ext).lattice", write=true, create=true) do io 
 			write(io, "lattice \\ \n")
-			for row in eachrow(large_lattice_array)
+			for (index, row) in enumerate(eachrow(large_lattice_array))
 				for coord in row 
 					write(io, string(coord), " ")
 				end
-				write(io, "\\ \n")
+				index==3 ? write(io, "\n") : write(io, "\\ \n")
 			end
 		end
 	end
