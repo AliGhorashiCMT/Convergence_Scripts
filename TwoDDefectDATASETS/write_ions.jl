@@ -30,9 +30,9 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 			for large_ion in large_ionpos
 				write(io, "ion ")
 				for ionspec in large_ion
-					write(io, string(ionspec), "  ")
+					write(io, string(" ", ionspec, " "))
 				end
-				write(io, "\n")
+				write(io, " HyperPlane 0 0 1\n")
 			end
 		end	
 		##Write Lattice
