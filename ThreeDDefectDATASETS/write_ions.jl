@@ -57,7 +57,6 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 	write_IONS_LATTICE(prefix, ext, small_lattice, small_ionpos, mults, defect_atom)
 end
 
-
 function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
 	##Write Script
 	open("RUN_MAIN.sh", write=true, create=true) do io
