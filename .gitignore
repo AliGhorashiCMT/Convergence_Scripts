@@ -4,3 +4,8 @@
 */*.ionpos
 */*.in
 */*.sh
+*.sh
+*.in
+*.out
+*/*.out
+
