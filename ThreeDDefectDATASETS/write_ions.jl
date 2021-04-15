@@ -47,6 +47,17 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		end
 	end
 end
+
+function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Integer}, defect_atom::String)
+	mults = Vector{Vector{Int64}}()
+	for mult in cell_mults
+		push!(mults, [mult, mult, mult])
+	end
+	println("writing ionpos/lattice files for: ", mults)
+	write_IONS_LATTICE(prefix, ext, small_lattice, small_ionpos, mults, defect_atom)
+end
+
+
 function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
 	##Write Script
 	open("RUN_MAIN.sh", write=true, create=true) do io
