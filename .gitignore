@@ -2,4 +2,4 @@
 *.ionpos
 */*.lattice
 */*.ionpos
-
+*/*.in
