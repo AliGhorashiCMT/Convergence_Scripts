@@ -62,28 +62,48 @@ Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 """
 function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
 	##Write Script
+	println("Writing Bash Script")
 	open("RUN_MAIN.sh", write=true, create=true) do io
 		write(io, string("#!/bin/bash \n"))
 		write(io, "export wfncutoff=$(wfncutoff)\n")
 		write(io, "export densitycutoff=$(densitycutoff)\n")
 		##Loop over extensions, cell mults, and do SCF, Bandstruct and Wannier calculations for all
 		write(io, "for mult in $([string(" ", m) for m in mults]...); do\n")
-		write(io, "export mult\n")
-		write(io, "export prefix=$(prefix)")
+		write(io, "\texport mult\n")
+		write(io, "\texport prefix=$(prefix) \n")
 		for (nk, charge, ext) in zip(nks, charges, extensions)
-			write(io, "export ext=$ext\n")
-			write(io, "export charge=$charge\n")
-			write(io, "export nk=$nk\n")
-			write(io, "for i in {0..3} do\n")
-			write(io, "jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
-			write(io, "done\n")
-			makexsf ? write(io, "createXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
-			write(io, "jdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\$\"mult\"\$\"mult\".out\n" )
+			write(io, "\texport ext=$ext\n")
+			write(io, "\texport charge=$charge\n")
+			write(io, "\texport nk=$nk\n")
+			write(io, "\tfor i in {0..3} do\n")
+			write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
+			write(io, "\tdone\n")
+			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
+			write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\".out\n" )
 		end
 		write(io, "done\n")
 	end
 end
 
+"Write bandstruct.kpoints for bandstructure calculations"
+function write_kpoints(kvec_coords::Vector{<:Vector{<:Real}}, kvec_labels::Vector{<:AbstractString}, spacing::Real)
+    total_kvecs = Vector{Vector{Any}}()
+    for (index, coord) in enumerate(kvec_coords)
+        push!(total_kvecs, ["kpoint", coord..., kvec_labels[index]])
+    end
+    open("bandstruct.kpoints.in", "w") do io
+            writedlm(io, total_kvecs); write(io, " \n ")
+    end;
+    run(`bandstructKpoints bandstruct.kpoints.in $(spacing) bandstruct`) 
+    rm("bandstruct.kpoints.in")
+    rm("bandstruct.plot")
+end
+
+
+"""
+Pass in the prefix, mults, and the extensions as well as the number of orbitals per atom and obtain randomly located wannier
+orbitals centered around the ions from the relevant ionpos coordinates.
+"""
 function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensions::Vector{<:String}, norbitals::Integer)
 	for ext in extensions
 		for mult in mults
