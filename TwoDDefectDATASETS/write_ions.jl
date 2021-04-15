@@ -60,7 +60,7 @@ end
 """
 Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 """
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
+function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true, relaxiterations::Integer=3)
 	##Write Script
 	println("Writing Bash Script")
 	open("RUN_MAIN.sh", write=true, create=true) do io
@@ -75,11 +75,11 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			write(io, "\texport ext=$ext\n")
 			write(io, "\texport charge=$charge\n")
 			write(io, "\texport nk=$nk\n")
-			write(io, "\tfor i in {0..3} do\n")
+			write(io, "\tfor i in {0..$(relaxiterations)} do\n")
 			write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
 			write(io, "\tdone\n")
-			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
-			write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\".out\n" )
+			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
+			write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" )
 		end
 		write(io, "done\n")
 	end
@@ -98,7 +98,6 @@ function write_kpoints(kvec_coords::Vector{<:Vector{<:Real}}, kvec_labels::Vecto
     rm("bandstruct.kpoints.in")
     rm("bandstruct.plot")
 end
-
 
 """
 Pass in the prefix, mults, and the extensions as well as the number of orbitals per atom and obtain randomly located wannier

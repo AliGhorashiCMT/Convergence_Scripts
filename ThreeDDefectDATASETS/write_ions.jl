@@ -32,7 +32,7 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 				for ionspec in large_ion
 					write(io, string(" ", ionspec, " "))
 				end
-				write(io, " HyperPlane 0 0 1\n")
+				write(io, "\n")
 			end
 		end	
 		##Write Lattice
@@ -57,7 +57,7 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 	write_IONS_LATTICE(prefix, ext, small_lattice, small_ionpos, mults, defect_atom)
 end
 
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true)
+function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true, relaxiterations::Integer=10)
 	##Write Script
 	open("RUN_MAIN.sh", write=true, create=true) do io
 		write(io, string("#!/bin/bash \n"))
@@ -65,17 +65,17 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 		write(io, "export densitycutoff=$(densitycutoff)\n")
 		##Loop over extensions, cell mults, and do SCF, Bandstruct and Wannier calculations for all
 		write(io, "for mult in $([string(" ", m) for m in mults]...); do\n")
-		write(io, "export mult\n")
-		write(io, "export prefix=$(prefix)")
+		write(io, "\texport mult\n")
+		write(io, "\texport prefix=$(prefix)")
 		for (nk, charge, ext) in zip(nks, charges, extensions)
-			write(io, "export ext=$ext\n")
-			write(io, "export charge=$charge\n")
-			write(io, "export nk=$nk\n")
-			write(io, "for i in {0..3} do\n")
-			write(io, "jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
-			write(io, "done\n")
-			makexsf ? write(io, "createXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
-			write(io, "jdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\$\"mult\"\$\"mult\".out\n" )
+			write(io, "\texport ext=$ext\n")
+			write(io, "\texport charge=$charge\n")
+			write(io, "\texport nk=$nk\n")
+			write(io, "\tfor i in {0..$(relaxiterations)} do\n")
+			write(io, "\t\tjdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
+			write(io, "\tdone\n")
+			makexsf ? write(io, "\tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\".xsf \n") : println("No output of xsf files")
+			write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"Bands.out\n" )
 		end
 		write(io, "done\n")
 	end
