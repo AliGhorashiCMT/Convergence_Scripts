@@ -75,7 +75,7 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			write(io, "\texport ext=$ext\n")
 			write(io, "\texport charge=$charge\n")
 			write(io, "\texport nk=$nk\n")
-			write(io, "\tfor i in {0..$(relaxiterations)} do\n")
+			write(io, "\tfor i in {0..$(relaxiterations)}; do\n")
 			write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
 			write(io, "\tdone\n")
 			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
