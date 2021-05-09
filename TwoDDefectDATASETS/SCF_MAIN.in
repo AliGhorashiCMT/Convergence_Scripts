@@ -17,7 +17,9 @@ dump-name ${prefix}${mult}${mult}${ext}.$VAR
 dump End ElecDensity State BandEigs EigStats DOS 
 dump Ionic Lattice IonicPositions 
 
-kpoint-folding ${nk} ${nk} 1
+symmetry-threshold 0.5e-5
+
+kpoint-folding ${nk} ${nk} 1 
 elec-smearing Fermi 0.0001
 elec-ex-corr gga-PBE
 
