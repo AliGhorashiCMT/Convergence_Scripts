@@ -57,14 +57,19 @@ end
 """
 Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 """
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true, gpu::Bool=true, relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing)
+function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, 
+	wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer};makexsf::Bool=true, gpu::Bool=true, 
+	relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing, phononsup::Vector{<:Integer} = [1, 1, 1], runphonon::Bool=false)
+	(length(phononsup) != 3) && error("Phonon supercell must be three component vector")
 	(!isnothing(numprocesses) && gpu) && error("Cannot define numprocesses for gpu enabled calculations")
 	##Write Script
 	println("Writing Bash Script")
+	ph1, ph2, ph3 = phononsup
 	open("RUN_MAIN.sh", write=true, create=true) do io
 		write(io, string("#!/bin/bash \n"))
 		write(io, "export wfncutoff=$(wfncutoff)\n")
 		write(io, "export densitycutoff=$(densitycutoff)\n")
+		runphonon && write(io, "export ph1=$(ph1)\nexport ph2=$(ph2)\nexport ph3=$(ph3)\n")
 		##Loop over extensions, cell mults, and do SCF, Bandstruct and Wannier calculations for all
 		write(io, "for mult in $([string(" ", m) for m in mults]...); do\n")
 		write(io, "\texport mult\n")
@@ -78,6 +83,7 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			write(io, "\tdone\n")
 			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
 			gpu ? write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ) : write(io, "\tmpirun -n $(numprocesses) jdftx -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" )
+			runphonon && (gpu ? write(io, "\tphonon_gpu Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n") :  write(io, "\tmpirun -n $(numprocesses) phonon -i Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n")) 
 		end
 		write(io, "done\n")
 	end
