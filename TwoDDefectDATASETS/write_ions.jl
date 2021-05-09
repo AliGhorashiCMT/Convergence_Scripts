@@ -60,7 +60,8 @@ Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, 
 	wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer};makexsf::Bool=true, gpu::Bool=true, 
 	relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing, phononsup::Vector{<:Integer} = [1, 1, 1], 
-	runphonon::Bool=false, runscf::Bool=true, runbands::Bool=true, runwannier::Bool=true)
+	runphonon::Bool=false, runscf::Bool=true, runbands::Bool=true, runwannier::Bool=true, 
+	lattminimize::Integer=5)
 	(length(phononsup) != 3) && error("Phonon supercell must be three component vector")
 	(!isnothing(numprocesses) && gpu) && error("Cannot define numprocesses for gpu enabled calculations")
 	##Write Script
@@ -70,6 +71,7 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 		write(io, string("#!/bin/bash \n"))
 		write(io, "export wfncutoff=$(wfncutoff)\n")
 		write(io, "export densitycutoff=$(densitycutoff)\n")
+		write(io, "export lattminimize=$(lattminimize)\n")
 		runphonon && write(io, "export ph1=$(ph1)\nexport ph2=$(ph2)\nexport ph3=$(ph3)\n")
 		##Loop over extensions, cell mults, and do SCF, Bandstruct and Wannier calculations for all
 		write(io, "for mult in $([string(" ", m) for m in mults]...); do\n")

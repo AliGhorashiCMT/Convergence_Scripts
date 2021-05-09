@@ -11,7 +11,7 @@ elec-initial-magnetization 1 no
 spintype z-spin
 electronic-SCF
 
-lattice-minimize nIterations 10
+lattice-minimize nIterations ${lattminimize}
 
 dump-name ${prefix}${mult}${mult}${ext}.$VAR
 dump End ElecDensity State BandEigs EigStats DOS 
