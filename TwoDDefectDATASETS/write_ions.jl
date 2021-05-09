@@ -1,4 +1,4 @@
-function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Vector{<:Integer}}, defect_atom::String)
+function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Vector{<:Integer}}, defect_atom::String)
 	for mults in cell_mults
 		##Make large lattice:	
 		large_lattice = small_lattice.*mults
@@ -7,16 +7,13 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 		for (index, ion) in enumerate(small_ionpos)
 			starting_pos = ion[2:4]./mults
 			ion_id = ion[1]
-			for z in 0:mults[3]-1
-				for y in 0:mults[2]-1
-					for x in 0:mults[1]-1
-						println([x, y, z]./mults)
-						if index==1 && [x, y, z]==[0, 0, 0]  
-							push!(large_ionpos, (defect_atom, (starting_pos+[x, y, z]./mults )..., ion[5]))
-						else
-							push!(large_ionpos, (ion_id, (starting_pos+[x, y, z]./mults )..., ion[5]))
-						end
-					end
+			for (xiter, yiter, ziter) in Tuple.(CartesianIndices(rand(mults...)))
+				x, y, z = xiter-1, yiter-1, ziter-1
+				println([x, y, z]./mults)
+				if index==1 && [x, y, z]==[0, 0, 0]  
+					push!(large_ionpos, (defect_atom, (starting_pos+[x, y, z]./mults )..., ion[5]))
+				else
+					push!(large_ionpos, (ion_id, (starting_pos+[x, y, z]./mults )..., ion[5]))
 				end
 			end
 		end
@@ -48,7 +45,7 @@ function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<
 	end
 end
 
-function write_IONS_LATTICE(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Integer}, defect_atom::String)
+function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Integer}, defect_atom::String)
 	mults = Vector{Vector{Int64}}()
 	for mult in cell_mults
 		push!(mults, [mult, mult, 1])
@@ -60,7 +57,8 @@ end
 """
 Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 """
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true, relaxiterations::Integer=3)
+function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer}; makexsf::Bool=true, gpu::Bool=true, relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing)
+	(!isnothing(numprocesses) && gpu) && error("Cannot define numprocesses for gpu enabled calculations")
 	##Write Script
 	println("Writing Bash Script")
 	open("RUN_MAIN.sh", write=true, create=true) do io
@@ -76,10 +74,10 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			write(io, "\texport charge=$charge\n")
 			write(io, "\texport nk=$nk\n")
 			write(io, "\tfor i in {0..$(relaxiterations)}; do\n")
-			write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
+			gpu ? write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n") : write(io, "\t \t mpirun -n $(numprocesses) jdftx -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n")
 			write(io, "\tdone\n")
 			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
-			write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" )
+			gpu ? write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ) : write(io, "\tmpirun -n $(numprocesses) jdftx -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" )
 		end
 		write(io, "done\n")
 	end
