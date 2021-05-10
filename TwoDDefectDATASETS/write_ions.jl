@@ -61,7 +61,7 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 	wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer};makexsf::Bool=true, gpu::Bool=true, 
 	relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing, phononsup::Vector{<:Integer} = [1, 1, 1], 
 	runphonon::Bool=false, runscf::Bool=true, runbands::Bool=true, runwannier::Bool=true, 
-	lattminimize::Integer=5)
+	lattminimize::Integer=5, dryrun::Bool=true)
 	(length(phononsup) != 3) && error("Phonon supercell must be three component vector")
 	(!isnothing(numprocesses) && gpu) && error("Cannot define numprocesses for gpu enabled calculations")
 	##Write Script
@@ -81,10 +81,13 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			write(io, "\texport ext=$ext\n")
 			write(io, "\texport charge=$charge\n")
 			write(io, "\texport nk=$nk\n")
-			write(io, "\tfor i in {0..$(relaxiterations)}; do\n")
-			runscf && (gpu ? write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n") : write(io, "\t \t mpirun -n $(numprocesses) jdftx -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n"))
-			write(io, "\tdone\n")
-			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
+			dryrun && write(io, "\tjdftx -ni SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".ni.out\n") 
+			if runscf 
+				write(io, "\tfor i in {0..$(relaxiterations)}; do\n")
+				(gpu ? write(io, "\t \t jdftx_gpu -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n") : write(io, "\t \t mpirun -n $(numprocesses) jdftx -i SCF_MAIN.in | tee -a $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".out\n"))
+				write(io, "\tdone\n")
+			end
+			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".ni.out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
 			runbands && (gpu ? write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ) : write(io, "\tmpirun -n $(numprocesses) jdftx -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ))
 			runphonon && (gpu ? write(io, "\tphonon_gpu Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n") :  write(io, "\tmpirun -n $(numprocesses) phonon -i Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n")) 
 			runwannier && (gpu ? write(io, 2) :  write(io, 3))
