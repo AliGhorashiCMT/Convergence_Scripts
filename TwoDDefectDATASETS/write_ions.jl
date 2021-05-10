@@ -92,7 +92,11 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".ni.out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
 			runbands && (gpu ? write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ) : write(io, "\tmpirun -n $(numprocesses) jdftx -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ))
 			runphonon && (gpu ? write(io, "\tphonon_gpu Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n") :  write(io, "\tmpirun -n $(numprocesses) phonon -i Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n")) 
-			if runwannier 
+			if runwannier && runphonon
+				write(io, "\texport wanniercenters=$(prefix)\"\$mult\"\"\$mult\"\"\$ext\".wanniercenters\n")
+				gpu ? write(io, "\twannier_gpu WANNIER_DEFECTPH.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_DEFECTPH.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" )
+				gpu ? write(io, "\twannier_gpu WANNIER_MAINPH.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_MAINPH.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" )
+			elseif runwannier
 				write(io, "\texport wanniercenters=$(prefix)\"\$mult\"\"\$mult\"\"\$ext\".wanniercenters\n")
 				gpu ? write(io, "\twannier_gpu WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" )
 				gpu ? write(io, "\twannier_gpu WANNIER_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" )

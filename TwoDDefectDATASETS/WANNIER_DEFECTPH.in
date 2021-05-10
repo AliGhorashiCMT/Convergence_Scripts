@@ -1,0 +1,10 @@
+include SCF_MAIN.in
+wannier\
+bstart ${defectband}\
+saveWfnsRealSpace no\
+phononSupercell ${ph1} ${ph2} ${ph3}
+
+wannier-initial-state ${prefix}${mult}${mult}${ext}.$VAR
+wannier-dump-name wannierDefect${prefix}${mult}${mult}${ext}.$VAR
+wannier-center ${defect} 1 pz
+wannier-minimize niterations  10000

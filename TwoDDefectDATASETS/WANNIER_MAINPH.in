@@ -1,0 +1,10 @@
+include SCF_MAIN.in
+wannier\
+bstart 0\
+saveWfnsRealSpace no\
+phononSupercell ${ph1} ${ph2} ${ph3}
+wannier-initial-state ${prefix}${mult}${mult}${ext}.$VAR
+wannier-dump-name wannier${type}${prefix}${mult}${mult}${ext}.$VAR
+include ${wanniercenters}
+
+wannier-minimize niterations  10000

@@ -37,9 +37,11 @@
 !*/BANDSTRUCT_MAIN.in
 !*/Phonon_MAIN.in
 !*/WANNIER_DEFECT.in
+!*/WANNIER_DEFECTPH.in
+!*/WANNIER_MAINPH.in
+
 
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribDn
-.gitignore
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribUp
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandRangesDn
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandRangesUp
