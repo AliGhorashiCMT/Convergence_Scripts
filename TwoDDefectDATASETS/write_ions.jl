@@ -92,7 +92,11 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 			makexsf ? write(io, " \tcreateXSF $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".ni.out $(prefix)\"\$mult\"\"\$mult\"\"\$ext\".xsf \n") : println("No output of xsf files")
 			runbands && (gpu ? write(io, "\tjdftx_gpu -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ) : write(io, "\tmpirun -n $(numprocesses) jdftx -i BANDSTRUCT_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Bands.out\n" ))
 			runphonon && (gpu ? write(io, "\tphonon_gpu Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n") :  write(io, "\tmpirun -n $(numprocesses) phonon -i Phonon_MAIN |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"Phonons.out\n")) 
-			runwannier && (gpu ? write(io, "\twannier_gpu WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" ))
+			if runwannier 
+				write(io, "\texport wanniercenters=$(prefix)\"\$mult\"\"\$mult\"\"\$ext\".wanniercenters\n")
+				gpu ? write(io, "\twannier_gpu WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_DEFECT.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierDefect.out\n" )
+				gpu ? write(io, "\twannier_gpu WANNIER_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" ) :  write(io, "\tmpirun -n $(numprocesses) wannier -i WANNIER_MAIN.in |tee $(prefix)\"\$mult\"\"\$mult\"\"\$ext\"WannierMain.out\n" )
+			end
 		end
 		write(io, "done\n")
 	end
@@ -136,9 +140,12 @@ function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensio
 			wanniercenters = Vector{Vector{Float64}}()
 			ions = readlines(prefix*string(mult)*string(mult)*ext*".ionpos")
 			for ion in ions
-				ioncoords = parse.(Float64, string.(split(ion))[3:5])
-				for o in 1:norbitals
-					push!(wanniercenters, ioncoords+rand(3)./100)
+				try
+					ioncoords = parse.(Float64, string.(split(ion))[3:5])
+					for o in 1:norbitals
+						push!(wanniercenters, ioncoords+rand(3)./100)
+					end
+				catch
 				end
 			end
 			open(prefix*string(mult)*string(mult)*ext*".wanniercenters", write=true) do io 

@@ -1,11 +1,10 @@
 include SCF_MAIN.in
 wannier\
-bstart ${defectband}\
+bstart 0\
 saveWfnsRealSpace no
-
 wannier-initial-state ${prefix}${mult}${mult}${ext}.$VAR
 wannier-dump-name wannier${type}${prefix}${mult}${mult}${ext}.$VAR
-${wannier-centers}
+include ${wanniercenters}
 
 wannier-minimize niterations  10000
 
