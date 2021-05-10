@@ -9,6 +9,10 @@
 *.out
 */*.out
 
+*/*.dosUp
+*/*.dosDn
+*/*.dos
+
 */*.xsf
 */*.eigstats
 */*.eigenvals
@@ -18,6 +22,7 @@
 */*.wfns
 */*.fillings
 
+*.xsf
 *.xsf
 *.eigstats
 *.eigenvals
