@@ -9,6 +9,24 @@
 *.out
 */*.out
 
+*/*.xsf
+*/*.eigstats
+*/*.eigenvals
+*/*.n
+*/*.n_up
+*/*.n_dn
+*/*.wfns
+*/*.fillings
+
+*.xsf
+*.eigstats
+*.eigenvals
+*.n
+*.n_up
+*.n_dn
+*.wfns
+*.fillings
+
 
 !*/SCF_MAIN.in
 !*/WANNIER_MAIN.in
