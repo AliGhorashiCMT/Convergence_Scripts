@@ -42,6 +42,10 @@
 !*/WANNIER_DEFECTPH.in
 !*/WANNIER_MAINPH.in
 
+*/wannierBN33BC*
+*/wannierDefectBN33BC*
+*/BN33BC*
+
 
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribDn
 TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribUp

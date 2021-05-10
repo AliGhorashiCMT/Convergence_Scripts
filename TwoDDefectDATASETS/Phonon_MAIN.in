@@ -1,4 +1,4 @@
 include SCF_MAIN.in        
 initial-state ${prefix}${mult}${mult}${ext}.$VAR 
 dump-only                  
-phonon supercell ${ph1} ${ph2} ${ph3}
+phonon supercell ${ph1} ${ph2} ${ph3} ${phononParams}
