@@ -6,8 +6,8 @@ saveWfnsRealSpace no\
 
 wannier-initial-state ${prefix}${mult}${mult}${ext}.$VAR
 wannier-dump-name wannier${type}${prefix}${mult}${mult}${ext}.$VAR
-wannier-center ${defect} 1 s
-
+#wannier-center ${defect} 1 pz
+wannier-center Gaussian 0 0 0 2 
 wannier-minimize niterations  10000
 
 

@@ -32,9 +32,24 @@
 *.wfns
 *.fillings
 
-
 !*/SCF_MAIN.in
 !*/WANNIER_MAIN.in
 !*/BANDSTRUCT_MAIN.in
 !*/Phonon_MAIN.in
 !*/WANNIER_DEFECT.in
+
+TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribDn
+.gitignore
+TwoDDefectDATASETS/wannierBN33BC.mlwfBandContribUp
+TwoDDefectDATASETS/wannierBN33BC.mlwfBandRangesDn
+TwoDDefectDATASETS/wannierBN33BC.mlwfBandRangesUp
+TwoDDefectDATASETS/wannierBN33BC.mlwfCellMapDn
+TwoDDefectDATASETS/wannierBN33BC.mlwfCellMapUp
+TwoDDefectDATASETS/wannierBN33BC.mlwfCellWeightsUp
+TwoDDefectDATASETS/wannierBN33BC.mlwfCellWeightsDn
+TwoDDefectDATASETS/wannierBN33BC.mlwfHUp
+TwoDDefectDATASETS/wannierBN33BC.mlwfHDn
+TwoDDefectDATASETS/wannierBN33BC.mlwfM0Dn
+TwoDDefectDATASETS/wannierBN33BC.mlwfM0Up
+TwoDDefectDATASETS/wannierBN33BC.mlwfUDn
+TwoDDefectDATASETS/wannierBN33BC.mlwfUUp
