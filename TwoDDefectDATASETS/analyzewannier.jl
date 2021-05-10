@@ -22,3 +22,25 @@ function finddefectband(eigstats::String, bandrange::String)
     end
     println(argmin(abses))
 end
+
+function findisolatedbands(bandrange::String; tolerance::Real=0)
+    ranges = Vector{Tuple{Float64, Float64 }}()
+    isolatedbands = Vector{Integer}()
+    for (indx, line) in enumerate(readlines(bandrange))
+        l, u =  parse.(Float64, String.(split(line)))
+        push!(ranges, (l, u))
+    end
+    for (idx, rangetuple) in enumerate(ranges)
+        diffs = Vector{Float64}()
+        try
+            push!(diffs, (rangetuple[1]-ranges[idx-1][2]-tolerance) )
+        catch
+        end
+        try
+            push!(diffs, (ranges[idx+1][1]-rangetuple[2]-tolerance) )
+        catch
+        end
+        (sum(diffs .> 0) == length(diffs))&& push!(isolatedbands, idx)
+    end
+    println(isolatedbands)
+end

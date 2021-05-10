@@ -22,6 +22,8 @@
 */*.wfns
 */*.fillings
 
+*/*.phonon.*.*
+
 *.xsf
 *.xsf
 *.eigstats
