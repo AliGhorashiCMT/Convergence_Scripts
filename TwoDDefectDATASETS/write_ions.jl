@@ -64,7 +64,7 @@ function write_ions_lattice(prefix::AbstractString, ext::String, small_lattice::
 		push!(mults, [mult, mult, 1])
 	end
 	println("writing ionpos/lattice files for: ", mults)
-	write_IONS_LATTICE(prefix, ext, small_lattice, small_ionpos, mults, defect_atom)
+	write_ions_lattice(prefix, ext, small_lattice, small_ionpos, mults, defect_atom)
 end
 
 """
