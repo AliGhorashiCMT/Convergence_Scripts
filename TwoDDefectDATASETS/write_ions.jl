@@ -70,9 +70,39 @@ end
 """
 $(TYPEDSIGNATURES)
 Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
+
+## Arguments 
+`prefix` : Same as in write_ions_lattice
+
+`extensions` : Extensions for the files indicating defect type
+
+`charges` : Charges of the unit cells 
+
+`nks` : K point sampling for self consistency calculations
+
+## KWARGS
+
+
+`gpu` : Whether to run JDFTX through GPUS (default yes)
+
+`runwannier` : Whether to find maximally localized wannier orbitals
+
+`runbands` : Whehter to run a bandstructure calculation 
+
+`runphonon` : Whether to run a phonon calculation
+
+`makexsf` : Whether to make an xsf file to visualize the structures
+
+`numprocesses` : How many CPUs to use if `gpu` is false
+
+`phononsup` : The phonon supercell (irrelevant if `runphonon` is false)
+
+`relaxiterations` : Number of times to restart from latest optimized lattice structure
+
+
 """
 function write_script(prefix::AbstractString, extensions::Vector{<:AbstractString}, charges::Vector{<:Real}, nks::Vector{<:Real}, 
-	wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer};makexsf::Bool=true, gpu::Bool=true, 
+	mults::Vector{<:Integer}, wfncutoff::Real=20, densitycutoff::Real=120;makexsf::Bool=true, gpu::Bool=true, 
 	relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing, phononsup::Vector{<:Integer} = [1, 1, 1], 
 	runphonon::Bool=false, runscf::Bool=true, runbands::Bool=true, runwannier::Bool=true, 
 	lattminimize::Integer=5, dryrun::Bool=true, defectband::Integer=1, defect::AbstractString="C")
@@ -138,7 +168,11 @@ function write_kpoints(kvec_coords::Vector{<:Vector{<:Real}}, kvec_labels::Vecto
     rm("bandstruct.plot")
 end
 
-"Write bandstruct.kpoints for bandstructure calculations"
+"""
+$(TYPEDSIGNATURES)
+Write bandstruct.kpoints for bandstructure calculations by supplying a tuple of kvectors and their associated labels. Spacing is the same 
+as in JDFTX conventions. The outputed kvectors will be in bandstruct.kpoints
+"""
 function write_kpoints(kvec_coords::Tuple{Vararg{<:Vector{<:Real}}}, kvec_labels::Tuple{Vararg{<:AbstractString}}, spacing::Real)
     total_kvecs = Vector{Vector{Any}}()
     for (index, coord) in enumerate(kvec_coords)
