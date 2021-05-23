@@ -1,15 +1,24 @@
+"""
+$(TYPEDSIGNATURES)
+"""
 function wannierbandranges(bandrange::AbstractString)
     for (indx, line) in enumerate(readlines(bandrange))
         println(indx, " ", parse.(Float64, String.(split(line))))
     end
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function wannierbandranges(bandrange1::AbstractString, bandrange2::AbstractString)
     for (indx, (line1, line2)) in enumerate(zip(readlines(bandrange1), readlines(bandrange2)))
         println(indx, " Up: ", parse.(Float64, String.(split(line1))), " Dn: ",  parse.(Float64, String.(split(line2))))
     end
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function finddefectband(eigstats::AbstractString, bandrange::AbstractString)
     μ = nothing
     for line in readlines(eigstats)
@@ -23,6 +32,9 @@ function finddefectband(eigstats::AbstractString, bandrange::AbstractString)
     println(argmin(abses))
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function findisolatedbands(bandrange::String; tolerance::Real=0)
     ranges = Vector{Tuple{Float64, Float64 }}()
     isolatedbands = Vector{Integer}()

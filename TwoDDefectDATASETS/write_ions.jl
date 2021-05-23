@@ -187,10 +187,11 @@ function write_kpoints(kvec_coords::Tuple{Vararg{<:Vector{<:Real}}}, kvec_labels
 end
 
 """
+$(TYPEDSIGNATURES)
 Pass in the prefix, mults, and the extensions as well as the number of orbitals per atom and obtain randomly located wannier
 orbitals centered around the ions from the relevant ionpos coordinates.
 """
-function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensions::Vector{<:String}, norbitals::Integer)
+function write_wanniercenters(prefix::AbstractString, mults::Vector{<:Integer}, extensions::Vector{<:AbstractString}, norbitals::Integer)
 	for ext in extensions
 		for mult in mults
 			wanniercenters = Vector{Vector{Float64}}()
