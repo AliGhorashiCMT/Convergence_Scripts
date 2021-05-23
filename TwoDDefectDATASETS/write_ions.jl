@@ -1,4 +1,11 @@
-function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Vector{<:Integer}}, defect_atom::String)
+using DocStringExtensions
+
+"""
+$(TYPEDSIGNATURES)
+"""
+function write_ions_lattice(prefix::AbstractString, ext::AbstractString, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{AbstractString, <:Real, <:Real, <:Real, <:Integer}}, 
+	cell_mults::Vector{<:Vector{<:Integer}}, defect_atom::AbstractString)
+
 	for mults in cell_mults
 		##Make large lattice:	
 		large_lattice = small_lattice.*mults
@@ -45,7 +52,13 @@ function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<
 	end
 end
 
-function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{String, <:Real, <:Real, <:Real, <:Integer}}, cell_mults::Vector{<:Integer}, defect_atom::String)
+"""
+$(TYPEDSIGNATURES)
+
+"""
+function write_ions_lattice(prefix::AbstractString, ext::String, small_lattice::Vector{<:Vector{<:Real}}, small_ionpos::Vector{<:Tuple{AbstractString, <:Real, <:Real, <:Real, <:Integer}}, 
+	cell_mults::Vector{<:Integer}, defect_atom::AbstractString)
+
 	mults = Vector{Vector{Int64}}()
 	for mult in cell_mults
 		push!(mults, [mult, mult, 1])
@@ -55,13 +68,15 @@ function write_ions_lattice(prefix::String, ext::String, small_lattice::Vector{<
 end
 
 """
+$(TYPEDSIGNATURES)
 Writes a bash script to run SCF_MAIN.in and BANDSTRUCT_MAIN.in
 """
-function write_script(prefix::String, extensions::Vector{<:String}, charges::Vector{<:Real}, nks::Vector{<:Real}, 
+function write_script(prefix::AbstractString, extensions::Vector{<:AbstractString}, charges::Vector{<:Real}, nks::Vector{<:Real}, 
 	wfncutoff::Real, densitycutoff::Real, mults::Vector{<:Integer};makexsf::Bool=true, gpu::Bool=true, 
 	relaxiterations::Integer=3, numprocesses::Union{Nothing, <:Integer}=nothing, phononsup::Vector{<:Integer} = [1, 1, 1], 
 	runphonon::Bool=false, runscf::Bool=true, runbands::Bool=true, runwannier::Bool=true, 
-	lattminimize::Integer=5, dryrun::Bool=true, defectband::Integer=1, defect::String="C")
+	lattminimize::Integer=5, dryrun::Bool=true, defectband::Integer=1, defect::AbstractString="C")
+
 	(length(phononsup) != 3) && error("Phonon supercell must be three component vector")
 	(!isnothing(numprocesses) && gpu) && error("Cannot define numprocesses for gpu enabled calculations")
 	##Write Script
@@ -106,7 +121,10 @@ function write_script(prefix::String, extensions::Vector{<:String}, charges::Vec
 	end
 end
 
-"Write bandstruct.kpoints for bandstructure calculations"
+"""
+$(TYPEDSIGNATURES)
+Write bandstruct.kpoints for bandstructure calculations
+"""
 function write_kpoints(kvec_coords::Vector{<:Vector{<:Real}}, kvec_labels::Vector{<:AbstractString}, spacing::Real)
     total_kvecs = Vector{Vector{Any}}()
     for (index, coord) in enumerate(kvec_coords)
@@ -160,3 +178,4 @@ function write_wanniercenters(prefix::String, mults::Vector{<:Integer}, extensio
 		end
 	end
 end
+

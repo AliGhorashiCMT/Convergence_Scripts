@@ -1,16 +1,16 @@
-function wannierbandranges(bandrange::String)
+function wannierbandranges(bandrange::AbstractString)
     for (indx, line) in enumerate(readlines(bandrange))
         println(indx, " ", parse.(Float64, String.(split(line))))
     end
 end
 
-function wannierbandranges(bandrange1::String, bandrange2::String)
+function wannierbandranges(bandrange1::AbstractString, bandrange2::AbstractString)
     for (indx, (line1, line2)) in enumerate(zip(readlines(bandrange1), readlines(bandrange2)))
         println(indx, " Up: ", parse.(Float64, String.(split(line1))), " Dn: ",  parse.(Float64, String.(split(line2))))
     end
 end
 
-function finddefectband(eigstats::String, bandrange::String)
+function finddefectband(eigstats::AbstractString, bandrange::AbstractString)
     μ = nothing
     for line in readlines(eigstats)
         contains(line, "mu") && (μ = parse(Float64, String.(split(line))[3]))
